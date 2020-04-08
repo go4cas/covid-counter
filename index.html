@@ -12,8 +12,8 @@
   
   <body class="bg-gray-900">
     <div x-data="covidDash()" x-init="loadCountryDetails()">
-      <div class="flex lg:justify-around sm:flex-col lg:flex-row">
-        <div class="flex flex-col sm:w-full lg:w-3/5">
+      <div class="flex justify-around sm:flex-col lg:flex-row">
+        <div class="flex flex-col sm:w-full lg:w-1/2">
           <div class="flex items-center">
             <div class="w-40 p-2">
               <img src="./images/covid.png" />
@@ -71,7 +71,7 @@
                       <div class="text-gray-400 text-sm" style="font-family: 'Audiowide';" x-text="formatNumber(selectedCountry.casesPerOneMillion)"></div>
                       <div class="text-gray-800 text-xs ml-1" style="font-family: 'Nova Square';">cases per million</div>
                     </div>
-                    <div class="text-gray-400 text-xs" style="font-family: 'Audiowide';" x-text="percentageNumber(selectedCountry.casesPerOneMillion,selectedCountry.cases,1)"></div>
+                    <div class="text-gray-400 text-xs" style="font-family: 'Audiowide';" x-text="percentageNumber(selectedCountry.casesPerOneMillion,1000000,1)"></div>
                   </div>
                   <div class="flex flex-col items-center text-2xl bg-green-900 p-4 rounded-lg border border-white mb-2" style="font-family: 'Audiowide';">
                     <div class="flex flex-row items-center">
@@ -96,7 +96,7 @@
             <!--</template>-->
           </div>
         </div>
-        <div class="h-screen sm:w-full lg:w-2/5 overflow-scroll">
+        <div class="h-screen w-full lg:w-1/2 overflow-scroll">
           <div x-show.transition.in.duration.50ms.opacity="loadingCountries" class="p-8">
             <i class="fas fa-spinner fa-pulse fa-4x text-red-700"></i>
           </div>
