@@ -1,0 +1,269 @@
+<html>
+  <head>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Nova+Square&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  </head>
+  
+  <body class="bg-gray-900">
+    <div x-data="covidDash()" x-init="loadCountryDetails()">
+      <div class="flex justify-around">
+        <div class="flex flex-col w-3/5">
+          <div class="flex items-center">
+            <div class="w-40 p-2">
+              <img src="./images/covid.png" />
+            </div>
+            <template x-if="world">
+              <div class="rounded overflow-hidden shadow-2xl h-auto p-4 m-2 border border-gray-600 bg-gray-800 w-full relative" style="font-family: 'Nova Square';">
+                <div class="text-xl text-gray-700">global</div>
+                <i class="fas fa-globe fa-2x w-8 h-8 inline absolute top-0 right-0 mt-1 mr-2 p-1 text-gray-700"></i>
+                <div class="flex items-center justify-between mt-4" style="font-family: 'Audiowide';">
+                  <div class="flex items-center text-2xl mr-4">
+                    <i class="fas fa-exclamation-triangle text-red-700 mr-1"></i>
+                    <div class="text-red-700 font-black" x-text="formatNumber(world.active)"></div>
+                  </div>
+                  <div class="flex items-center text-xl mr-4">
+                    <i class="fas fa-heartbeat text-green-500 mr-1"></i>
+                    <div class="text-green-500 font-black" x-text="formatNumber(world.recovered)"></div>
+                  </div>
+                  <div class="flex items-center text-sm mr-4">
+                    <i class="fas fa-skull-crossbones text-black mr-1"></i>
+                    <div class="text-black font-black" x-text="formatNumber(world.deaths)"></div>
+                  </div>
+                  <div class="flex items-center text-md mr-4">
+                    <i class="fas fa-thermometer-half text-gray-600 mr-1"></i>
+                    <div class="text-gray-600 text-right font-black" x-text="formatNumber(world.cases)"></div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div class="flex-grow-0 flex-shrink-0 rounded overflow-hidden shadow-2xl h-auto p-4 m-2 border border-gray-600 bg-gray-800 relative" style="font-family: 'Nova Square';">
+            <!--<template x-if="selectedCountry">-->
+              <div class="text-4xl text-white" x-text="selectedCountry.country"></div>
+              <img class="w-20 inline absolute top-0 right-0 mt-1 mr-1 bg-gray-900 rounded-full p-2" :src="selectedCountry.countryInfo.iso2 ? './images/flags2/' + selectedCountry.countryInfo.iso2 + '.svg' : './images/flags/none.png'" />
+              <div class="flex justify-around mt-8">
+                <div class="flex flex-col items-center text-4xl mr-4 bg-red-900 p-4 rounded-lg border border-white w-2/3" style="font-family: 'Audiowide';">
+                  <div class="flex flex-row items-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                    <div class="text-white font-black" x-text="formatNumber(selectedCountry.active)"></div>
+                    <div class="text-red-700 text-sm ml-2" x-text="formatNumber(selectedCountry.todayCases)"></div>
+                    <div class="text-red-700 text-sm ml-1" style="font-family: Nova Square;">new</div>
+                  </div>
+                  <div class="text-red-600 text-xl ml-2" style="font-family: 'Nova Square';">active cases</div>
+                  <div class="w-full h-32 relative ">
+                    <canvas id="chartNewCases"></canvas>
+                  </div>
+                </div>
+                <div class="flex flex-col w-1/3">
+                  <div class="flex flex-col items-center text-3xl bg-gray-700 p-4 rounded-lg border border-white mb-2" style="font-family: 'Audiowide';">
+                    <div class="flex flex-row items-center">
+                      <i class="fas fa-thermometer-half text-gray-900 mr-2"></i>
+                      <div class="text-gray-300 font-black" x-text="formatNumber(selectedCountry.cases)"></div>
+                    </div>
+                    <div class="text-gray-900 text-lg ml-2" style="font-family: 'Nova Square';">reported cases</div>
+                    <div class="flex justify-center mt-2">
+                      <div class="text-gray-400 text-sm" style="font-family: 'Audiowide';" x-text="formatNumber(selectedCountry.casesPerOneMillion)"></div>
+                      <div class="text-gray-800 text-xs ml-1" style="font-family: 'Nova Square';">cases per million</div>
+                    </div>
+                    <div class="text-gray-400 text-xs" style="font-family: 'Audiowide';" x-text="percentageNumber(selectedCountry.casesPerOneMillion,selectedCountry.cases,1)"></div>
+                  </div>
+                  <div class="flex flex-col items-center text-2xl bg-green-900 p-4 rounded-lg border border-white mb-2" style="font-family: 'Audiowide';">
+                    <div class="flex flex-row items-center">
+                      <i class="fas fa-heartbeat text-green-500 mr-2"></i>
+                      <div class="text-white font-black" x-text="formatNumber(selectedCountry.recovered)"></div>
+                    </div>
+                    <div class="text-gray-400 text-xs ml-4" x-text="percentageNumber(selectedCountry.recovered,selectedCountry.cases,1)"></div>
+                    <div class="text-green-500 text-base ml-2" style="font-family: 'Nova Square';">recovered cases</div>
+                  </div>  
+                  <div class="flex flex-col items-center text-2xl bg-black p-4 rounded-lg border border-white mb-2" style="font-family: 'Audiowide';">
+                    <div class="flex flex-row items-center">
+                      <i class="fas fa-skull-crossbones text-gray-700 mr-2"></i>
+                      <div class="text-gray-500 font-black" x-text="formatNumber(selectedCountry.deaths)"></div>
+                      <div class="text-red-700 text-xs ml-2" x-text="formatNumber(selectedCountry.todayDeaths)"></div>
+                      <div class="text-red-700 text-xs ml-1" style="font-family: Nova Square;">new</div>
+                    </div>
+                    <div class="text-gray-400 text-xs ml-4" x-text="percentageNumber(selectedCountry.deaths,selectedCountry.cases,1)"></div>
+                    <div class="text-gray-700 text-base ml-2" style="font-family: 'Nova Square';">deceased</div>
+                  </div>
+                </div>                
+              </div>
+            <!--</template>-->
+          </div>
+        </div>
+        <div class="flex-grow-0 flex-shrink-0 h-screen w-2/5 overflow-scroll">
+          <div x-show.transition.in.duration.50ms.opacity="loadingCountries" class="p-8">
+            <i class="fas fa-spinner fa-pulse fa-4x text-red-700"></i>
+          </div>
+          <template x-for="(country,index) in countries" :key="index" x-if="!loadingCountries" x-show.transition.in.duration.700ms.opacity.out.duration.700ms.opacity="!loadingCountries">
+            <div class="rounded overflow-hidden shadow-xl h-20 p-2 m-2 border border-gray-700 bg-gray-800 relative cursor-pointer" style="font-family: 'Audiowide';"  @click="selectCountry(index)">
+              <img class="w-8 inline absolute top-0 right-0 mt-1 mr-1 bg-gray-900 rounded-full p-1" :src="country.countryInfo.iso2 ? './images/flags2/' + country.countryInfo.iso2 + '.svg' : './images/flags/none.png'" />
+              <div class="text-md text-gray-400" style="font-family: Nova Square;" x-text="country.country"></div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center text-2xl mr-4">
+                  <i class="fas fa-exclamation-triangle text-red-700 mr-1"></i>
+                  <div class="text-red-700 font-black" x-text="formatNumber(country.active)"></div>
+                </div>
+                <div class="flex items-center text-xl mr-4">
+                  <i class="fas fa-heartbeat text-green-500 mr-1"></i>
+                  <div class="text-green-500 font-black" x-text="formatNumber(country.recovered)"></div>
+                </div>
+                <div class="flex items-center text-sm mr-4">
+                  <i class="fas fa-skull-crossbones text-black mr-1"></i>
+                  <div class="text-black font-black" x-text="formatNumber(country.deaths)"></div>
+                </div>
+                <div class="flex items-center text-md mr-4">
+                  <i class="fas fa-thermometer-half text-gray-600 mr-1"></i>
+                  <div class="text-gray-600 text-right font-black" x-text="formatNumber(country.cases)"></div>
+                </div>
+              </div>
+            </div>
+          </template>    
+        </div>
+      </div>
+    </div>
+  </body>  
+
+  <script type="text/javascript">
+    function covidDash() {
+      return {
+        selectedCountry: null,
+        loadingCountries: false,
+        countries: [],
+        world: null,
+        async userCountry() {
+          await fetch(`http://ip-api.com/json`)
+            .then(res => res.json())
+            .then(data => {
+              const userCountry = this.countries.findIndex(country =>
+                country.country === data.country
+              )
+              if (userCountry >= 0) { this.selectCountry(userCountry) }
+            })
+        },
+        async loadCountryDetails() {
+          await this.fetchWorld()
+          await this.fetchCountries()
+          await this.userCountry()
+        },
+        async fetchWorld() {
+          await fetch(`https://corona.lmao.ninja/all`)
+          .then(res => res.json())
+          .then(data => {
+            this.world = data
+          })
+        },
+        async fetchCountries() {
+          this.loadingCountries = true
+          await fetch(`https://corona.lmao.ninja/countries`)
+            .then(res => res.json())
+            .then(data => {
+              const countries = data
+              countries.sort((a,b) => {
+                return b.active-a.active
+              })
+              this.countries = countries
+              this.fetchCountryHistory()
+              this.loadingCountries = false
+            })
+        },
+        async fetchCountryHistory() {
+          await fetch(`https://corona.lmao.ninja/v2/historical`)
+            .then(res => res.json())
+            .then(data => {
+              const history = data
+              this.countries.forEach((country, index) => {
+                let match = history.find(countryHistory =>
+                  country.country === countryHistory.country
+                )
+                if (match) {
+                  this.countries[index].history = match.timeline
+                  let newCases = {}
+                  let prevKey = {}
+                  const firstCase = Object.keys(match.timeline.cases)[0]
+                  for (let key of Object.keys(match.timeline.cases)) {
+                    if (key === firstCase) {
+                      newCases[key] = match.timeline.cases[key]
+                    } else {
+                      newCases[key] = match.timeline.cases[key] > match.timeline.cases[prevKey] ? match.timeline.cases[key] - match.timeline.cases[prevKey] : 0
+                    }
+                    prevKey = key
+                  }
+                  this.countries[index].history.newCases = newCases
+                }
+              })
+            })
+        },
+        async selectCountry(index) {
+          this.selectedCountry = await this.countries[index]
+          await this.renderCharts(this.selectedCountry.history.newCases)
+        },
+        formatNumber(value) {
+          return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '0'
+        },
+        percentageNumber(value, divider, decimals) {
+          return '(' + parseFloat(value/divider*100).toFixed(decimals) + '%)'
+        },
+        formatDate(value) {
+          const valueArray = value.split('/')
+          const formattedDate = `20${valueArray[2]}-${(valueArray[0].length===1 ? '0' : '')}${valueArray[0]}-${(valueArray[1].length===1 ? '0' : '')}${valueArray[1]}`
+          return formattedDate
+        },
+        async renderCharts(data) {
+          let chartData = []
+          for (let key in data) {
+            chartData.push ({
+              x: moment(this.formatDate(key)),
+              y: Number(data[key])
+            })
+          }
+
+          var ctx = await document.getElementById('chartNewCases').getContext('2d')
+          var newCasesChart = await new Chart(ctx, {
+            type: 'line',
+            data: {
+              datasets: [{
+                borderColor: '#A02F2F',
+                borderWidth: 6,
+                fill: false,
+                data: chartData,
+                pointRadius: 0
+              }]
+            },
+            options: {
+              maintainAspectRatio: false,
+              legend: {
+                display: false
+              },
+              layout: {
+                padding: 10
+              },
+              animation: {
+                easing: 'easeInOutQuad'
+              },
+              scales: {
+                xAxes: [{
+                  type: 'time',
+                  time: {
+                    unit: 'day'
+                  },
+                  display: false
+                }],
+                yAxes: [{
+                  display: false
+                }]
+              }
+            }
+          })
+          await newCasesChart.update()
+          
+        }
+      }
+    }
+  </script>
+</html>
