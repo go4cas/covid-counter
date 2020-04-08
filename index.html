@@ -46,7 +46,7 @@
           <div class="flex-grow-0 flex-shrink-0 rounded overflow-hidden shadow-2xl h-auto p-4 m-2 border border-gray-600 bg-gray-800 relative" style="font-family: 'Nova Square';">
             <!--<template x-if="selectedCountry">-->
               <div class="text-4xl text-white" x-text="selectedCountry.country"></div>
-              <img class="w-20 inline absolute top-0 right-0 mt-1 mr-1 bg-gray-900 rounded-full p-2" :src="selectedCountry.countryInfo.iso2 ? './images/flags2/' + selectedCountry.countryInfo.iso2 + '.svg' : './images/flags/none.png'" />
+              <img class="w-20 inline absolute top-0 right-0 mt-1 mr-1 bg-gray-900 rounded-full p-2" :src="selectedCountry.countryInfo.iso2 ? './images/' + selectedCountry.countryInfo.iso2 + '.svg' : './images/none.png'" />
               <div class="flex justify-around mt-8">
                 <div class="flex flex-col items-center text-4xl mr-4 bg-red-900 p-4 rounded-lg border border-white w-2/3" style="font-family: 'Audiowide';">
                   <div class="flex flex-row items-center">
@@ -102,7 +102,7 @@
           </div>
           <template x-for="(country,index) in countries" :key="index" x-if="!loadingCountries" x-show.transition.in.duration.700ms.opacity.out.duration.700ms.opacity="!loadingCountries">
             <div class="rounded overflow-hidden shadow-xl h-20 p-2 m-2 border border-gray-700 bg-gray-800 relative cursor-pointer" style="font-family: 'Audiowide';"  @click="selectCountry(index)">
-              <img class="w-8 inline absolute top-0 right-0 mt-1 mr-1 bg-gray-900 rounded-full p-1" :src="country.countryInfo.iso2 ? './images/flags2/' + country.countryInfo.iso2 + '.svg' : './images/flags/none.png'" />
+              <img class="w-8 inline absolute top-0 right-0 mt-1 mr-1 bg-gray-900 rounded-full p-1" :src="country.countryInfo.iso2 ? './images/' + country.countryInfo.iso2 + '.svg' : './images/none.png'" />
               <div class="text-md text-gray-400" style="font-family: Nova Square;" x-text="country.country"></div>
               <div class="flex items-center justify-between">
                 <div class="flex items-center text-2xl mr-4">
