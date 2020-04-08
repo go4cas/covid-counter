@@ -137,11 +137,11 @@
         countries: [],
         world: null,
         async userCountry() {
-          await fetch(`http://ip-api.com/json`)
+          await fetch(`https://ipapi.co/json`)
             .then(res => res.json())
             .then(data => {
               const userCountry = this.countries.findIndex(country =>
-                country.country === data.country
+                country.country === data.country_name
               )
               if (userCountry >= 0) { this.selectCountry(userCountry) }
             })
