@@ -152,7 +152,7 @@
           await this.userCountry()
         },
         async fetchWorld() {
-          await fetch(`https://corona.lmao.ninja/all`)
+          await fetch(`https://corona.lmao.ninja/v2/all`)
           .then(res => res.json())
           .then(data => {
             this.world = data
@@ -160,7 +160,7 @@
         },
         async fetchCountries() {
           this.loadingCountries = true
-          await fetch(`https://corona.lmao.ninja/countries`)
+          await fetch(`https://corona.lmao.ninja/v2/countries`)
             .then(res => res.json())
             .then(data => {
               const countries = data
