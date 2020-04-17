@@ -173,7 +173,7 @@
             })
         },
         async fetchCountryHistory() {
-          await fetch(`https://corona.lmao.ninja/v2/historical`)
+          await fetch(`https://corona.lmao.ninja/v2/historical?lastdays=all`)
             .then(res => res.json())
             .then(data => {
               const history = data
